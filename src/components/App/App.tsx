@@ -5,7 +5,7 @@ import Board from '../Board/Board';
 
 import './App.css';
 
-function App() {
+export default function App(): JSX.Element {
   return (
     <div className="App">
       <Logo />
@@ -13,5 +13,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

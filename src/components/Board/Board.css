@@ -13,8 +13,8 @@
   font-size: larger;
   padding: 20px;
   background: ghostwhite;
-  border-radius: 25px;
-  border-color: #E5E5EA;
+  border-radius: 1rem;
+  border-color: #e5e5ea;
   color: brown;
   cursor: pointer;
 }

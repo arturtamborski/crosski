@@ -1,8 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import './Board.css';
 
-class Board extends Component {
+export default class Board extends React.Component {
+
+  static propTypes = {
+    clickHandler: PropTypes.func,
+  };
 
   genSquares() {
     let squares = [];
@@ -22,12 +27,12 @@ class Board extends Component {
     return squares;
   }
 
-  onMouseDown() {
-    console.log("down")
+  onMouseMove() {
+    return 1;
   }
 
-  onMouseMove() {
-    console.log("move")
+  onMouseDown() {
+    return 1;
   }
 
   render() {
@@ -42,5 +47,3 @@ class Board extends Component {
     );
   }
 }
-
-export default Board;
