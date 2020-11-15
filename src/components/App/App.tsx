@@ -3,7 +3,7 @@ import React from 'react';
 import Logo from '../Logo/Logo';
 import Board from '../Board/Board';
 
-import './App.css';
+import './App.scss';
 
 export default function App(): JSX.Element {
   return (

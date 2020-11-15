@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Wide from './crosski_wide.svg'
-import './Logo.css';
+import './Logo.scss';
 
 export default function Logo(): JSX.Element {
   return (
