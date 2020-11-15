@@ -1,4 +1,8 @@
 .Logo {
-  background: red;
-  width: 20vw;
+  padding: 40px 0;
+}
+
+.Logo-wide {
+  width: 50%;
+  margin-left: 25%;
 }

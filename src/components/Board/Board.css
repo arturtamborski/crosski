@@ -1,0 +1,24 @@
+.Board {
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(8, 8vw);
+  column-gap: 15px;
+  row-gap: 15px;
+  user-select: none;
+  text-align: center;
+}
+
+.Letter {
+  font-weight: bold;
+  font-size: larger;
+  padding: 20px;
+  background: ghostwhite;
+  border-radius: 25px;
+  border-color: #E5E5EA;
+  color: brown;
+  cursor: pointer;
+}
+
+.Letter:hover {
+  background: #e4e4ff;
+}

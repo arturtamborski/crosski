@@ -1,11 +1,12 @@
 import React from 'react';
 
-import '../../styles/Logo.css';
+import Wide from './crosski_wide.svg'
+import './Logo.css';
 
 function Logo() {
   return (
     <div className="Logo">
-      asdsdasdadsads
+      <img alt="Logo" src={Wide} className="Logo-wide"/>
     </div>
   );
 }
