@@ -17,8 +17,8 @@
   border-color: #e5e5ea;
   color: brown;
   cursor: pointer;
-}
 
-.Letter:hover {
-  background: #e4e4ff;
+  &:hover {
+    background: #e4e4ff;
+  }
 }
