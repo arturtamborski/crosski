@@ -41,6 +41,12 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   }
 
   handleMouseUp(endPos: Point) {
+    const x = Math.abs(endPos.x - this.state.startPos.x);
+    const y = Math.abs(endPos.y - this.state.startPos.y);
+
+    if (!(x === 0 || y === 0 || x === y))
+      return;
+
     this.setState({...this.state, endPos, isSelecting: false});
   }
 
