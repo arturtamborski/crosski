@@ -14,6 +14,7 @@ export default function App(): JSX.Element {
         <Board
           numRows={10}
           numCols={10}
+          numLines={1}
         />
       </div>
       <div />

@@ -19,19 +19,13 @@ $LetterHoverColor: #d9d9ff;
   height: 100%;
 }
 
-.Line {
-  stroke: red;
-  stroke-width: 10px;
-  opacity: 0.3;
-}
-
 .Board {
   display: grid;
   justify-content: center;
   grid-template-columns: repeat(10, 60px);
 }
 
-.Letter {
+.Cell {
   width: 60px;
   height: 60px;
   font-weight: bold;
