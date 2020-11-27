@@ -7,7 +7,10 @@ interface IBoardProps {
   numCols: number;
 }
 
-type Position = [x: number, y: number];
+interface Position {
+  x: number;
+  y: number;
+}
 
 interface IBoardState {
   board: string[][];
@@ -17,21 +20,23 @@ interface IBoardState {
 
 export default class Board extends React.Component<IBoardProps, IBoardState> {
   private line: React.RefObject<SVGLineElement>;
-  private line_x1: string;
-  private line_y1: string;
+  private line1: Position;
+  private line2: Position;
+  private letterSize: number;
 
   constructor(props: IBoardProps) {
     super(props);
 
     this.state = {
-      board: Array(props.numCols).fill(Array(props.numRows).fill('·')),
+      board: Array(props.numCols).fill(Array(props.numRows).fill('A')),
       isSelectingWord: false,
-      startPos: [0, 0],
+      startPos: {x: 0, y: 0},
     }
 
     this.line = React.createRef();
-    this.line_x1 = "0px";
-    this.line_y1 = "0px";
+    this.line1 = {x: 0, y: 0};
+    this.line2 = {x: 0, y: 0};
+    this.letterSize = 60;
   }
 
   handleMouseDown(startPos: Position) {
@@ -39,9 +44,8 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   }
 
   handleMouseUp(startPos: Position) {
-    let [x, y] = startPos;
-    this.line_x1 = `${y * 100}px`;
-    this.line_y1 = `${x * 100}px`;
+    this.line1 = startPos;
+    this.line2 = this.state.startPos;
 
     this.setState({...this.state, startPos, isSelectingWord: false});
   }
@@ -53,14 +57,14 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
 
   render(): JSX.Element {
     let letters =
-      this.state.board.map((ox, x) =>
-        ox.map((s, y) =>
+      this.state.board.map((oy, y) =>
+        oy.map((s, x) =>
           <button
             key={`${x}${y}`}
             className="Letter"
-            onMouseUp={() => this.handleMouseUp([x, y])}
-            onMouseDown={() => this.handleMouseDown([x, y])}
-            onMouseOver={() => this.handleMouseOver([x, y])}
+            onMouseUp={() => this.handleMouseUp({x, y})}
+            onMouseDown={() => this.handleMouseDown({x, y})}
+            onMouseOver={() => this.handleMouseOver({x, y})}
           >
             {s}
           </button>
@@ -78,10 +82,10 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
             <line
               className="Line"
               ref={this.line}
-              x1={this.line_x1}
-              y1={this.line_y1}
-              x2="0"
-              y2="0"
+              x1={`${this.line1.x * this.letterSize + this.letterSize / 2}`}
+              y1={`${this.line1.y * this.letterSize + this.letterSize / 2}`}
+              x2={`${this.line2.x * this.letterSize + this.letterSize / 2}`}
+              y2={`${this.line2.y * this.letterSize + this.letterSize / 2}`}
             />
           </svg>
         </div>
