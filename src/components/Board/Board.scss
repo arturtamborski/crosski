@@ -1,24 +1,56 @@
+$LetterBaseColor: ghostwhite;
+$LetterHoverColor: #d9d9ff;
+
+.Container {
+  display: grid;
+}
+
+.Content, .Overlay {
+  grid-area: 1 / 1;
+}
+
+.Overlay {
+  user-select: none;
+  pointer-events: none;
+}
+
+.Canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.Line {
+  stroke: red;
+  stroke-width: 10px;
+  opacity: 0.3;
+}
+
 .Board {
   display: grid;
   justify-content: center;
-  grid-template-columns: repeat(8, 8vw);
-  column-gap: 15px;
-  row-gap: 15px;
-  user-select: none;
-  text-align: center;
+  grid-template-columns: repeat(10, 60px);
 }
 
 .Letter {
+  width: 60px;
+  height: 60px;
   font-weight: bold;
-  font-size: larger;
-  padding: 20px;
-  background: ghostwhite;
-  border-radius: 1rem;
-  border-color: #e5e5ea;
+  font-size: x-large;
+  font-family: monospace;
+  padding: 15px;
+  background: $LetterBaseColor;
+  text-align: center;
+  border: 5px solid #e5e5ea;
+  border-radius: 100%;
   color: brown;
   cursor: pointer;
 
   &:hover {
-    background: #e4e4ff;
+    border-color: $LetterHoverColor;
+  }
+
+  &:focus {
+    border-color: #8b8be5;
   }
 }
+

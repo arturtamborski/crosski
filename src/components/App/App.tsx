@@ -8,8 +8,15 @@ import './App.scss';
 export default function App(): JSX.Element {
   return (
     <div className="App">
-      <Logo />
-      <Board />
+      <div />
+      <div>
+        <Logo />
+        <Board
+          numRows={10}
+          numCols={10}
+        />
+      </div>
+      <div />
     </div>
   );
 }
