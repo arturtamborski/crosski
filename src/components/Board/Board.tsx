@@ -17,7 +17,7 @@ interface IBoardProps {
 
 interface IBoardState {
   cells: string[][];
-  lines: string[];
+  lines: boolean[];
   isSelecting: boolean;
   startPos: Point;
   endPos: Point;
@@ -29,33 +29,34 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
 
     this.state = {
       cells: Array(props.numCols).fill(Array(props.numRows).fill('A')),
-      lines: Array(props.numLines).fill(''),
+      lines: Array(props.numLines).fill(false),
       isSelecting: false,
       startPos: {x: 0, y: 0},
       endPos: {x: 0, y: 0},
     }
   }
 
+  moveIsValid(pos: Point): boolean {
+    const x = Math.abs(pos.x - this.state.startPos.x);
+    const y = Math.abs(pos.y - this.state.startPos.y);
+    const lineIsValid = x === 0 || y === 0 || x === y;
+
+    return this.state.isSelecting && lineIsValid;
+  }
+
   handleMouseDown(startPos: Point) {
-    this.setState({...this.state, startPos, isSelecting: true});
+    const endPos = startPos;
+    this.setState({...this.state, startPos, endPos, isSelecting: true});
   }
 
   handleMouseUp(endPos: Point) {
-    const x = Math.abs(endPos.x - this.state.startPos.x);
-    const y = Math.abs(endPos.y - this.state.startPos.y);
-
-    if (!(x === 0 || y === 0 || x === y))
-      return;
-
-    this.setState({...this.state, endPos, isSelecting: false});
+    if (this.moveIsValid(endPos))
+      this.setState({...this.state, endPos, isSelecting: false});
   }
 
-  handleMouseOver(currentPos: Point) {
-    if (!this.state.isSelecting) {
-      this.setState({...this.state});
-    } else {
-
-    }
+  handleMouseOver(endPos: Point) {
+    if (this.moveIsValid(endPos))
+      this.setState({...this.state, endPos});
   }
 
   renderCell(s: string, pos: Point): JSX.Element {
@@ -76,9 +77,10 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     return (
       <Line
         key={`Line${x}`}
-        startPos={this.state.startPos}
-        endPos={this.state.endPos}
+        startPos={{...this.state.startPos}}
+        endPos={{...this.state.endPos}}
         cellSize={60}
+        isVisible={this.state.lines[0]}
       />
     );
   }
