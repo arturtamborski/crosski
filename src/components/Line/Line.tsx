@@ -35,6 +35,9 @@ export default function Line(props: ILineProps): JSX.Element {
   const oy = dir(props.startPos.y - props.endPos.y);
   const d = Number(`${ox}${oy}`) as Direction;
 
+  const absX = Math.abs(props.startPos.x - props.endPos.x);
+  const absY = Math.abs(props.startPos.y - props.endPos.y);
+
   switch (d) {
     case Direction.None:
       break;
@@ -42,59 +45,55 @@ export default function Line(props: ILineProps): JSX.Element {
       x = pos(props.endPos.x) - margin + offset;
       y = pos(props.endPos.y) - margin + offset;
       w = 55;
-      h = pos(props.startPos.y - props.endPos.y +1) - margin - offset * 2;
+      h = pos(absY + 1) - margin - offset * 2;
       t = '';
       break;
     case Direction.Down:
       x = pos(props.startPos.x) - margin + offset;
       y = pos(props.startPos.y) - margin + offset;
       w = 55;
-      h = pos(props.endPos.y - props.startPos.y +1) - margin - offset * 2;
+      h = pos(absY + 1) - margin - offset * 2;
       t = '';
       break;
     case Direction.Left:
       x = pos(props.endPos.x) - margin + offset;
       y = pos(props.endPos.y) - margin + offset;
-      w = pos(props.startPos.x - props.endPos.x +1) - margin - offset * 2;
+      w = pos(absX + 1) - margin - offset * 2;
       h = 55;
       t = '';
       break;
     case Direction.LeftUp:
       x = pos(props.endPos.x-1) + margin;
       y = pos(props.endPos.y) - margin + offset;
-      w = props.startPos.x - props.endPos.x;
-      w = pos(w) + (margin - offset * 2) + w * (margin - offset * 2);
+      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
       h = 55;
       t = `translate(29,-14),rotate(45, ${x-offset}, ${y+offset})`
       break;
     case Direction.LeftDown:
       x = pos(props.endPos.x-1) + margin;
       y = pos(props.endPos.y) - margin + offset;
-      w = props.startPos.x - props.endPos.x;
-      w = pos(w) + (margin - offset * 2) + w * (margin - offset * 2);
+      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
       h = 55;
       t = `translate(-12,27),rotate(-45, ${x+offset}, ${y-offset})`
       break;
     case Direction.Right:
       x = pos(props.startPos.x) - margin + offset;
       y = pos(props.startPos.y) - margin + offset;
-      w = pos(props.endPos.x - props.startPos.x +1) - margin - offset * 2;
+      w = pos(absX + 1) - margin - offset * 2;
       h = 55;
       t = '';
       break;
     case Direction.RightUp:
       x = pos(props.startPos.x) - margin + offset;
       y = pos(props.startPos.y) - margin + offset;
-      w = props.endPos.x - props.startPos.x;
-      w = pos(w) + (margin - offset * 2) + w * (margin - offset * 2);
+      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
       h = 55;
       t = `translate(-9, 29),rotate(-45, ${x-offset}, ${y+offset})`
       break;
     case Direction.RightDown:
       x = pos(props.startPos.x) - margin + offset;
       y = pos(props.startPos.y) - margin + offset;
-      w = props.endPos.x - props.startPos.x;
-      w = pos(w) + (margin - offset * 2) + w * (margin - offset * 2);
+      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
       h = 55;
       t = `translate(27, -14),rotate(45, ${x-offset}, ${y+offset})`
       break;
