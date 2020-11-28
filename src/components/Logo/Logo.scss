@@ -1,8 +1,5 @@
 .Logo {
-  padding: 40px 0;
-}
-
-.Logo-wide {
-  width: 50%;
-  margin-left: 25%;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
 }

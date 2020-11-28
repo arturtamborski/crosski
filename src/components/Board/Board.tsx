@@ -46,17 +46,23 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
 
   handleMouseDown(startPos: Point) {
     const endPos = startPos;
-    this.setState({...this.state, startPos, endPos, isSelecting: true});
+    let lines = [...this.state.lines];
+    lines[0] = true;
+    this.setState({...this.state, startPos, endPos, lines, isSelecting: true});
   }
 
   handleMouseUp(endPos: Point) {
-    if (this.moveIsValid(endPos))
-      this.setState({...this.state, endPos, isSelecting: false});
+    if (!this.moveIsValid(endPos))
+      return;
+
+    this.setState({...this.state, endPos, isSelecting: false});
   }
 
   handleMouseOver(endPos: Point) {
-    if (this.moveIsValid(endPos))
-      this.setState({...this.state, endPos});
+    if (!this.moveIsValid(endPos))
+      return;
+
+    this.setState({...this.state, endPos});
   }
 
   renderCell(s: string, pos: Point): JSX.Element {
@@ -80,7 +86,6 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
         startPos={{...this.state.startPos}}
         endPos={{...this.state.endPos}}
         cellSize={60}
-        isVisible={this.state.lines[0]}
       />
     );
   }
@@ -91,8 +96,8 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
         oy.map((s, x) =>
           this.renderCell(s, {x, y})));
 
-    let lines = this.state.lines.map((ox, x) =>
-        this.renderLine(x));
+    let lines = this.state.lines.filter(x => x).map((ox, x) =>
+      this.renderLine(x));
 
     return (
       <div className="Container">

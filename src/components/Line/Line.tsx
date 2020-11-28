@@ -8,7 +8,6 @@ interface ILineProps {
   startPos: Point;
   endPos: Point;
   cellSize: number;
-  isVisible: boolean;
 }
 
 export default function Line(props: ILineProps): JSX.Element {
@@ -17,7 +16,6 @@ export default function Line(props: ILineProps): JSX.Element {
   return (
     <line
       className="Line"
-      // style={{display: props.isVisible ? 'shown' : 'hidden'}}
       x1={`${pos(props.endPos.x)}`}
       y1={`${pos(props.endPos.y)}`}
       x2={`${pos(props.startPos.x)}`}

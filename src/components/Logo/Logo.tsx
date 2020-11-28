@@ -6,7 +6,7 @@ import './Logo.scss';
 export default function Logo(): JSX.Element {
   return (
     <div className="Logo">
-      <img alt="Logo" src={Wide} className="Logo-wide"/>
+      <img alt="Logo" src={Wide}/>
     </div>
   );
 }
