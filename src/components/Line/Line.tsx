@@ -23,18 +23,26 @@ interface ILineProps {
 }
 
 export default function Line(props: ILineProps): JSX.Element {
-  const pos = (v: number) => v * props.cellSize + props.cellSize / 2;
-  const dir = (v: number) => v < 0 ? 2 : v > 0 ? 1 : 0;
-
   const offset = 2.5;
   const margin = 30;
+  const padding = margin - offset * 2;
 
-  let [x, y, w, h, t] = [0, 0, 0, 0, ''];
+  const dir = (v: number) => v < 0 ? 2 : v > 0 ? 1 : 0;
+  const mid = (v: number) => v * props.cellSize + props.cellSize / 2;
+  const pad1 = (v: number) => mid(v) - margin + offset;
+  const pad2 = (v: number) => mid(v + 1) - margin - offset * 2;
+  const pad3 = (v: number) => mid(v) + padding + v * padding;
+  const pad4 = (v: number) => mid(v - 1) + margin;
+
+  let [x, y, w, h, tx, ty, r, rx, ry, t] = [0, 0, 0, 0, 0, 0, 0, 0, 0, ''];
+  console.log(x, y, w, h, tx, ty, r, rx, ry);
 
   const ox = dir(props.startPos.x - props.endPos.x);
   const oy = dir(props.startPos.y - props.endPos.y);
   const d = Number(`${ox}${oy}`) as Direction;
 
+  const startX = Math.min(props.startPos.x, props.endPos.x);
+  const startY = Math.min(props.startPos.y, props.endPos.y);
   const absX = Math.abs(props.startPos.x - props.endPos.x);
   const absY = Math.abs(props.startPos.y - props.endPos.y);
 
@@ -42,58 +50,58 @@ export default function Line(props: ILineProps): JSX.Element {
     case Direction.None:
       break;
     case Direction.Up:
-      x = pos(props.endPos.x) - margin + offset;
-      y = pos(props.endPos.y) - margin + offset;
+      x = pad1(startX);
+      y = pad1(startY);
       w = 55;
-      h = pos(absY + 1) - margin - offset * 2;
+      h = pad2(absY);
       t = '';
       break;
     case Direction.Down:
-      x = pos(props.startPos.x) - margin + offset;
-      y = pos(props.startPos.y) - margin + offset;
+      x = pad1(startX);
+      y = pad1(startY);
       w = 55;
-      h = pos(absY + 1) - margin - offset * 2;
+      h = pad2(absY);
       t = '';
       break;
     case Direction.Left:
-      x = pos(props.endPos.x) - margin + offset;
-      y = pos(props.endPos.y) - margin + offset;
-      w = pos(absX + 1) - margin - offset * 2;
+      x = pad1(startX);
+      y = pad1(startY);
+      w = pad2(absX);
       h = 55;
       t = '';
       break;
     case Direction.LeftUp:
-      x = pos(props.endPos.x-1) + margin;
-      y = pos(props.endPos.y) - margin + offset;
-      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
+      x = pad1(startX);
+      y = pad1(startY);
+      w = pad3(absX);
       h = 55;
-      t = `translate(29,-14),rotate(45, ${x-offset}, ${y+offset})`
+      t = `translate(26,-14),rotate(45, ${x-offset}, ${y+offset})`
       break;
     case Direction.LeftDown:
-      x = pos(props.endPos.x-1) + margin;
-      y = pos(props.endPos.y) - margin + offset;
-      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
+      x = pad4(props.endPos.x);
+      y = pad1(props.endPos.y);
+      w = pad3(absX);
       h = 55;
       t = `translate(-12,27),rotate(-45, ${x+offset}, ${y-offset})`
       break;
     case Direction.Right:
-      x = pos(props.startPos.x) - margin + offset;
-      y = pos(props.startPos.y) - margin + offset;
-      w = pos(absX + 1) - margin - offset * 2;
+      x = pad1(startX);
+      y = pad1(startY);
+      w = pad2(absX);
       h = 55;
       t = '';
       break;
     case Direction.RightUp:
-      x = pos(props.startPos.x) - margin + offset;
-      y = pos(props.startPos.y) - margin + offset;
-      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
+      x = pad1(props.startPos.x);
+      y = pad1(props.startPos.y);
+      w = pad3(absX);
       h = 55;
       t = `translate(-9, 29),rotate(-45, ${x-offset}, ${y+offset})`
       break;
     case Direction.RightDown:
-      x = pos(props.startPos.x) - margin + offset;
-      y = pos(props.startPos.y) - margin + offset;
-      w = pos(absX) + (margin - offset * 2) + absX * (margin - offset * 2);
+      x = pad1(startX);
+      y = pad1(startY);
+      w = pad3(absX);
       h = 55;
       t = `translate(27, -14),rotate(45, ${x-offset}, ${y+offset})`
       break;
