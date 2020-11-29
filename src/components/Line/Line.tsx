@@ -34,9 +34,6 @@ export default function Line(props: ILineProps): JSX.Element {
   const pad3 = (v: number) => mid(v) + padding + v * padding;
   const pad4 = (v: number) => mid(v - 1) + margin;
 
-  let [x, y, w, h, tx, ty, r, rx, ry, t] = [0, 0, 0, 0, 0, 0, 0, 0, 0, ''];
-  console.log(x, y, w, h, tx, ty, r, rx, ry);
-
   const ox = dir(props.startPos.x - props.endPos.x);
   const oy = dir(props.startPos.y - props.endPos.y);
   const d = Number(`${ox}${oy}`) as Direction;
@@ -46,6 +43,8 @@ export default function Line(props: ILineProps): JSX.Element {
   const absX = Math.abs(props.startPos.x - props.endPos.x);
   const absY = Math.abs(props.startPos.y - props.endPos.y);
 
+  let [x, y, w, h, tx, ty, r, rx, ry] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
   switch (d) {
     case Direction.None:
       break;
@@ -54,56 +53,88 @@ export default function Line(props: ILineProps): JSX.Element {
       y = pad1(startY);
       w = 55;
       h = pad2(absY);
-      t = '';
+      tx = 0;
+      ty = 0;
+      r = 0;
+      rx = 0;
+      ry = 0;
       break;
     case Direction.Down:
       x = pad1(startX);
       y = pad1(startY);
       w = 55;
       h = pad2(absY);
-      t = '';
+      tx = 0;
+      ty = 0;
+      r = 0;
+      rx = 0;
+      ry = 0;
       break;
     case Direction.Left:
       x = pad1(startX);
       y = pad1(startY);
       w = pad2(absX);
       h = 55;
-      t = '';
+      tx = 0;
+      ty = 0;
+      r = 0;
+      rx = 0;
+      ry = 0;
       break;
     case Direction.LeftUp:
       x = pad1(startX);
       y = pad1(startY);
       w = pad3(absX);
       h = 55;
-      t = `translate(26,-14),rotate(45, ${x-offset}, ${y+offset})`
+      tx = 26;
+      ty = -14;
+      r = 45;
+      rx = x-offset;
+      ry = y+offset;
       break;
     case Direction.LeftDown:
       x = pad4(props.endPos.x);
       y = pad1(props.endPos.y);
       w = pad3(absX);
       h = 55;
-      t = `translate(-12,27),rotate(-45, ${x+offset}, ${y-offset})`
+      tx = -12;
+      ty = 27;
+      r = -45;
+      rx = x+offset;
+      ry = y-offset;
       break;
     case Direction.Right:
       x = pad1(startX);
       y = pad1(startY);
       w = pad2(absX);
       h = 55;
-      t = '';
+      tx = 0;
+      ty = 0;
+      r = 0;
+      rx = 0;
+      ry = 0;
       break;
     case Direction.RightUp:
       x = pad1(props.startPos.x);
       y = pad1(props.startPos.y);
       w = pad3(absX);
       h = 55;
-      t = `translate(-9, 29),rotate(-45, ${x-offset}, ${y+offset})`
+      tx = -9;
+      ty = 28;
+      r = -45;
+      rx = x-offset;
+      ry = y+offset;
       break;
     case Direction.RightDown:
       x = pad1(startX);
       y = pad1(startY);
       w = pad3(absX);
       h = 55;
-      t = `translate(27, -14),rotate(45, ${x-offset}, ${y+offset})`
+      tx = 27;
+      ty = -14;
+      r = 45;
+      rx = x-offset;
+      ry = y+offset;
       break;
   }
 
@@ -122,7 +153,7 @@ export default function Line(props: ILineProps): JSX.Element {
         y={y}
         width={w}
         height={h}
-        transform={t}
+        transform={`translate(${tx}, ${ty}), rotate(${r}, ${rx}, ${ry})`}
         rx={margin - offset}
         ry={margin - offset}
       />
