@@ -90,8 +90,8 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     return (
       <Line
         key={`Line${x}`}
-        startPos={{...this.state.start}}
-        endPos={{...this.state.end}}
+        start={{...this.state.start}}
+        end={{...this.state.end}}
         cellSize={60}
       />
     );
