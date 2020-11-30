@@ -12,6 +12,7 @@ export type Point = {
 type Selection = {
   start: Point;
   end: Point;
+  visible: boolean;
 }
 
 interface IBoardProps {
@@ -29,7 +30,7 @@ interface IBoardState {
 }
 
 const Point0: Point = {x: 0, y: 0};
-const Selection0: Selection = {start: Point0, end: Point0};
+const Selection0: Selection = {start: Point0, end: Point0, visible: false};
 
 export default class Board extends React.Component<IBoardProps, IBoardState> {
   constructor(props: IBoardProps) {
@@ -42,6 +43,10 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
       start: Point0,
       end: Point0,
     }
+
+    let s = this.state.selections.slice();
+    s[0].visible = true;
+    this.setState({...this.state})
   }
 
   moveIsValid(pos: Point): boolean {
@@ -52,9 +57,19 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     return this.state.isSelecting && lineIsValid;
   }
 
+  updateSelection(start: Point, end: Point): Array<Selection> {
+    let selections = this.state.selections.slice();
+    let s = selections.find(s => s.visible);
+
+    if (s !== undefined)
+      [s.start, s.end, s.visible] = [start, end, true];
+
+    return selections;
+  }
+
   handleMouseDown(start: Point) {
     const end = start;
-    let selections = [...this.state.selections];
+    const selections = this.updateSelection(start, start);
     this.setState({...this.state, start, end, selections, isSelecting: true});
   }
 
@@ -62,14 +77,16 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     if (!this.moveIsValid(end))
       return;
 
-    this.setState({...this.state, end, isSelecting: false});
+    const selections = this.updateSelection(this.state.start, end);
+    this.setState({...this.state, end, selections, isSelecting: false});
   }
 
   handleMouseOver(end: Point) {
     if (!this.moveIsValid(end))
       return;
 
-    this.setState({...this.state, end});
+    const selections = this.updateSelection(this.state.start, end);
+    this.setState({...this.state, end, selections});
   }
 
   renderCell(s: string, pos: Point): JSX.Element {
@@ -86,12 +103,13 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     );
   }
 
-  renderLine(x: number): JSX.Element {
+  renderLine(s: Selection, n: number): JSX.Element {
     return (
       <Line
-        key={`Line${x}`}
-        start={{...this.state.start}}
-        end={{...this.state.end}}
+        key={`Line${n}`}
+        start={s.start}
+        end={s.end}
+        visible={s.visible}
         cellSize={60}
       />
     );
@@ -103,8 +121,8 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
         oy.map((s, x) =>
           this.renderCell(s, {x, y})));
 
-    let lines = this.state.selections.filter(x => x).map((ox, x) =>
-      this.renderLine(x));
+    let lines = this.state.selections.map((s, n) =>
+      this.renderLine(s, n));
 
     return (
       <div className="Container">

@@ -20,6 +20,7 @@ interface ILineProps {
   start: Point;
   end: Point;
   cellSize: number;
+  visible: boolean;
 }
 
 export default function Line(props: ILineProps): JSX.Element {
@@ -82,6 +83,7 @@ export default function Line(props: ILineProps): JSX.Element {
       ry={margin - offset}
       {...{x, y, width, height}}
       transform={`translate(${tx}, ${ty}), rotate(${r}, ${rx}, ${ry})`}
+      visibility={props.visible ? 'visible' : 'hidden'}
     />
   );
 }

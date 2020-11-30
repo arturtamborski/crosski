@@ -36,8 +36,11 @@
   color: brown;
   cursor: pointer;
 
-  &:focus, &:hover {
+  &:hover {
     border-color: #8b8be5;
     outline: none;
+  }
+  &:not(hover) {
+    border-color: #e5e5ea;
   }
 }
