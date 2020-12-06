@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Point} from '../Board/Board'
+import {Bar} from '../Board/Board'
 
 import './Line.scss';
 
@@ -17,10 +17,10 @@ enum Direction {
 }
 
 interface ILineProps {
-  start: Point;
-  end: Point;
+  bar: Bar;
   cellSize: number;
-  visible: boolean;
+  isVisible: boolean;
+  isCorrect: boolean;
 }
 
 export default function Line(props: ILineProps): JSX.Element {
@@ -28,6 +28,7 @@ export default function Line(props: ILineProps): JSX.Element {
   const margin = props.cellSize / 2;
   const padding = margin - offset * 2;
 
+  /* pls ignore */
   const dir = (v: number) => v < 0 ? 2 : v > 0 ? 1 : 0;
   const mid = (v: number) => v * props.cellSize + props.cellSize / 2;
   const pad1 = (v: number) => mid(v) - margin + offset;
@@ -35,17 +36,15 @@ export default function Line(props: ILineProps): JSX.Element {
   const pad3 = (v: number) => mid(v) + padding + v * padding;
   const pad4 = (v: number) => mid(v - 1) + margin;
 
-  const ox = dir(props.start.x - props.end.x);
-  const oy = dir(props.start.y - props.end.y);
+  const [startX, startY] = [props.bar.start.x, props.bar.start.y];
+  const [endX, endY] = [props.bar.end.x, props.bar.end.y];
+  const [ox, oy] = [dir(startX - endX), dir(startY - endY)];
   const d = Number(`${ox}${oy}`) as Direction;
 
-  const minX = Math.min(props.start.x, props.end.x);
-  const minY = Math.min(props.start.y, props.end.y);
-  const maxY = Math.max(props.start.y, props.end.y);
-  const absX = Math.abs(props.start.x - props.end.x);
-  const absY = Math.abs(props.start.y - props.end.y);
-  const signX = Math.sign(props.start.x - props.end.x);
-  const signY = Math.sign(props.start.y - props.end.y);
+  const maxY = Math.max(startY, endY);
+  const [minX, minY] = [Math.min(startX, endX), Math.min(startY, endY)];
+  const [absX, absY] = [Math.abs(startX - endX), Math.abs(startY - endY)];
+  const [signX, signY] = [Math.sign(startX - endX), Math.sign(startY - endY)];
 
   /* uhh, edge cases for two directions, idk how to fix it */
   const x = d === Direction.LeftDown ? pad4(minX) : pad1(minX);
@@ -78,12 +77,12 @@ export default function Line(props: ILineProps): JSX.Element {
 
   return (
     <rect
-      className="Line"
+      className={props.isCorrect ? 'CorrectLine' : 'Line'}
       rx={margin - offset}
       ry={margin - offset}
       {...{x, y, width, height}}
       transform={`translate(${tx}, ${ty}), rotate(${r}, ${rx}, ${ry})`}
-      visibility={props.visible ? 'visible' : 'hidden'}
+      visibility={props.isVisible ? 'visible' : 'hidden'}
     />
   );
 }

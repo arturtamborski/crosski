@@ -4,15 +4,20 @@ import Line from '../Line/Line';
 
 import './Board.scss';
 
-export type Point = {
+type Point = {
   x: number;
   y: number;
 }
 
+export type Bar = {
+  start: Point,
+  end: Point,
+}
+
 type Selection = {
-  start: Point;
-  end: Point;
-  visible: boolean;
+  bar: Bar,
+  isVisible: boolean;
+  isCorrect: boolean;
 }
 
 interface IBoardProps {
@@ -24,69 +29,67 @@ interface IBoardProps {
 interface IBoardState {
   cells: string[][];
   selections: Selection[];
-  isSelecting: boolean;
-  start: Point;
-  end: Point;
+  wasSelecting: boolean;
+  bar: Bar;
 }
 
-const Point0: Point = {x: 0, y: 0};
-const Selection0: Selection = {start: Point0, end: Point0, visible: false};
+const SOLUTIONS: Array<Bar> = [
+  {start: {x: 0, y: 0}, end: {x: 5, y: 0}},
+  {start: {x: 2, y: 2}, end: {x: 4, y: 4}},
+]
 
 export default class Board extends React.Component<IBoardProps, IBoardState> {
   constructor(props: IBoardProps) {
     super(props);
 
-    this.state = {
-      cells: Array(props.numCols).fill(Array(props.numRows).fill('A')),
-      selections: Array(props.numLines).fill(Selection0),
-      isSelecting: false,
-      start: Point0,
-      end: Point0,
+    const selection: Selection = {
+      bar: {
+        start: {x: 0, y: 0},
+        end: {x: 0, y: 0},
+      },
+      isCorrect: false,
+      isVisible: true,
     }
 
-    let s = this.state.selections.slice();
-    s[0].visible = true;
-    this.setState({...this.state})
+    this.state = {
+      cells: Array(props.numCols).fill(Array(props.numRows).fill('A')),
+      selections: [...new Array(props.numLines)].map(() => Object.assign({}, selection)),
+      wasSelecting: false,
+      bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}}
+    }
   }
 
-  moveIsValid(pos: Point): boolean {
-    const x = Math.abs(pos.x - this.state.start.x);
-    const y = Math.abs(pos.y - this.state.start.y);
-    const lineIsValid = x === 0 || y === 0 || x === y;
-
-    return this.state.isSelecting && lineIsValid;
+  gameOver(): void {
+    alert("You won!");
   }
 
-  updateSelection(start: Point, end: Point): Array<Selection> {
-    let selections = this.state.selections.slice();
-    let s = selections.find(s => s.visible);
-
-    if (s !== undefined)
-      [s.start, s.end, s.visible] = [start, end, true];
-
-    return selections;
-  }
-
-  handleMouseDown(start: Point) {
-    const end = start;
-    const selections = this.updateSelection(start, start);
-    this.setState({...this.state, start, end, selections, isSelecting: true});
-  }
-
-  handleMouseUp(end: Point) {
-    if (!this.moveIsValid(end))
+  updateSelection(pos: Point, isSelecting: boolean, isMoving: boolean = false): void {
+    if (isMoving && !this.state.wasSelecting)
       return;
 
-    const selections = this.updateSelection(this.state.start, end);
-    this.setState({...this.state, end, selections, isSelecting: false});
-  }
+    const selections = this.state.selections.slice();
+    const s = selections.find(v => !v.isCorrect);
 
-  handleMouseOver(end: Point) {
-    if (!this.moveIsValid(end))
-      return;
+    if (!s)
+      return this.gameOver();
 
-    const selections = this.updateSelection(this.state.start, end);
-    this.setState({...this.state, end, selections});
+    const x = Math.abs(pos.x - this.state.bar.start.x);
+    const y = Math.abs(pos.y - this.state.bar.start.y);
+    const isValidMove = x === 0 || y === 0 || x === y;
+    const isMouseDown = isSelecting && !this.state.wasSelecting;
+    const isMouseUp = !isSelecting && this.state.wasSelecting && isValidMove;
+
+    const start: Point = isMouseDown ? pos : this.state.bar.start;
+    const bar: Bar = {start, end: pos};
+
+    if (isValidMove)
+      s.bar = bar;
+
+    if (isMouseUp)
+      s.isCorrect = SOLUTIONS.some(v =>
+        JSON.stringify(v) === JSON.stringify(bar));
+
+    this.setState({...this.state, bar, selections, wasSelecting: isSelecting});
   }
 
   renderCell(s: string, pos: Point): JSX.Element {
@@ -94,9 +97,9 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
       <button
         className="Cell"
         key={`Cell${pos.x}${pos.y}`}
-        onMouseUp={() => this.handleMouseUp(pos)}
-        onMouseDown={() => this.handleMouseDown(pos)}
-        onMouseOver={() => this.handleMouseOver(pos)}
+        onMouseUp={() => this.updateSelection(pos, false)}
+        onMouseDown={() => this.updateSelection(pos, true)}
+        onMouseOver={() => this.updateSelection(pos, true, true)}
       >
         {s}
       </button>
@@ -107,9 +110,9 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     return (
       <Line
         key={`Line${n}`}
-        start={s.start}
-        end={s.end}
-        visible={s.visible}
+        bar={s.bar}
+        isVisible={s.isVisible}
+        isCorrect={s.isCorrect}
         cellSize={60}
       />
     );

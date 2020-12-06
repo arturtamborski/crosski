@@ -3,3 +3,8 @@
   stroke-width: 5px;
   fill: none;
 }
+
+.CorrectLine {
+  @extend .Line;
+  stroke: #60bf4f;
+}
