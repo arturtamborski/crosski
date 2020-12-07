@@ -9,15 +9,16 @@ export default function App(): JSX.Element {
   return (
     <div className="App">
       <div />
-      <Logo />
+      <div>
+        <Logo />
+        <div>
+          controls: 1231414214
+        </div>
+      </div>
       <div />
       <div />
       <div>
-        <Board
-          numRows={10}
-          numCols={10}
-          numLines={2}
-        />
+        <Board numBoard={1}/>
       </div>
       <div />
     </div>

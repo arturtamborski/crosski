@@ -14,6 +14,11 @@ export type Bar = {
   end: Point,
 }
 
+type Solution = {
+  bar: Bar;
+  key: string;
+}
+
 type Selection = {
   bar: Bar,
   isVisible: boolean;
@@ -21,41 +26,39 @@ type Selection = {
 }
 
 interface IBoardProps {
-  numRows: number;
-  numCols: number;
-  numLines: number;
+  numBoard: number;
 }
 
 interface IBoardState {
-  cells: string[][];
-  selections: Selection[];
+  score: number;
   wasSelecting: boolean;
+  selections: Array<Selection>;
   bar: Bar;
 }
 
-const SOLUTIONS: Array<Bar> = [
-  {start: {x: 0, y: 0}, end: {x: 5, y: 0}},
-  {start: {x: 2, y: 2}, end: {x: 4, y: 4}},
-]
-
 export default class Board extends React.Component<IBoardProps, IBoardState> {
+  private readonly cells: Array<Array<string>>;
+  private readonly solutions: Array<Solution>;
+
   constructor(props: IBoardProps) {
     super(props);
 
-    const selection: Selection = {
-      bar: {
-        start: {x: 0, y: 0},
-        end: {x: 0, y: 0},
-      },
-      isCorrect: false,
-      isVisible: true,
-    }
+    const crosski: any = require(`../../constants/${props.numBoard}.json`)
+    this.cells = crosski.cells;
+    this.solutions = crosski.solutions;
+
+    const selections = [...new Array(this.solutions.length)].map(() =>
+      Object.assign({}, {
+        bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
+        isCorrect: false,
+        isVisible: true,
+      }));
 
     this.state = {
-      cells: Array(props.numCols).fill(Array(props.numRows).fill('A')),
-      selections: [...new Array(props.numLines)].map(() => Object.assign({}, selection)),
+      score: 0,
+      selections,
       wasSelecting: false,
-      bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}}
+      bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
     }
   }
 
@@ -64,32 +67,33 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   }
 
   updateSelection(pos: Point, isSelecting: boolean, isMoving: boolean = false): void {
-    if (isMoving && !this.state.wasSelecting)
-      return;
-
+    let score = this.state.score;
     const selections = this.state.selections.slice();
     const s = selections.find(v => !v.isCorrect);
 
-    if (!s)
-      return this.gameOver();
+    // skip if there are no lines left or the mouse is moving but not selecting
+    if (!s || (isMoving && !this.state.wasSelecting))
+      return;
 
     const x = Math.abs(pos.x - this.state.bar.start.x);
     const y = Math.abs(pos.y - this.state.bar.start.y);
     const isValidMove = x === 0 || y === 0 || x === y;
     const isMouseDown = isSelecting && !this.state.wasSelecting;
     const isMouseUp = !isSelecting && this.state.wasSelecting && isValidMove;
-
     const start: Point = isMouseDown ? pos : this.state.bar.start;
     const bar: Bar = {start, end: pos};
+    const str = JSON.stringify;
 
     if (isValidMove)
       s.bar = bar;
 
-    if (isMouseUp)
-      s.isCorrect = SOLUTIONS.some(v =>
-        JSON.stringify(v) === JSON.stringify(bar));
+    if (isMouseUp && this.solutions.some(v => str(v.bar) === str(bar)))
+      [s.isCorrect, score] = [true, score + 1];
 
-    this.setState({...this.state, bar, selections, wasSelecting: isSelecting});
+    this.setState({...this.state, score, bar, selections, wasSelecting: isSelecting});
+
+    if (score === this.solutions.length)
+      this.gameOver();
   }
 
   renderCell(s: string, pos: Point): JSX.Element {
@@ -120,7 +124,7 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
 
   render(): JSX.Element {
     let cells =
-      this.state.cells.map((oy, y) =>
+      this.cells.map((oy, y) =>
         oy.map((s, x) =>
           this.renderCell(s, {x, y})));
 
@@ -130,7 +134,10 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     return (
       <div className="Container">
         <div className="Content">
-          <div className="Board">
+          <div
+            className="Board"
+            style={{gridTemplateColumns: `repeat(${this.cells.length}, 60px)`}}
+          >
             {cells}
           </div>
         </div>
