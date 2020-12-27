@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Bar} from '../App/App'
+import {Selection} from '../App/App'
 
 import './Line.scss';
 
@@ -17,7 +17,7 @@ enum Dir {
 }
 
 interface ILineProps {
-  bar: Bar;
+  selection: Selection;
   cellSize: number;
   isCorrect: boolean;
 }
@@ -25,8 +25,8 @@ interface ILineProps {
 export default function Line(props: ILineProps): JSX.Element {
   const [m1, sqrt2] = [props.cellSize, Math.sqrt(2)];
   const [m2, m4, m8] = [m1 / 2, m1 / 4, m1 / 8];
-  const [startX, endX] = [m1 * props.bar.start.x, m1 * props.bar.end.x];
-  const [startY, endY] = [m1 * props.bar.start.y, m1 * props.bar.end.y];
+  const [startX, endX] = [m1 * props.selection.start.x, m1 * props.selection.end.x];
+  const [startY, endY] = [m1 * props.selection.start.y, m1 * props.selection.end.y];
 
   const dir = (v: number) => v < 0 ? 2 : v > 0 ? 1 : 0;
   const d = Number(`${dir(startX-endX)}${dir(startY-endY)}`) as Dir;

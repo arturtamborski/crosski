@@ -10,14 +10,14 @@ export type Point = {
   y: number;
 }
 
-export type Bar = {
+export type Selection = {
   start: Point;
   end: Point;
 }
 
 export type Solution = {
-  bar: Bar;
-  answer: string;
+  selection: Selection;
+  key: string;
 }
 
 type Game = {
@@ -30,13 +30,16 @@ type Game = {
 
 export default class App extends React.Component {
   private game: Game;
-  private readonly answers: Array<JSX.Element>;
 
   constructor(props: object) {
     super(props);
 
     this.game = require(`../../constants/1.json`)
-    this.answers = this.game.solutions.map(s => s.answer).map(k => <p>{k}</p>);
+  }
+
+  renderAnswers(): Array<JSX.Element> {
+    return this.game.solutions.map(s => s.key).map(k =>
+      <p className="Answer">{k}</p>);
   }
 
   render() {
@@ -60,7 +63,7 @@ export default class App extends React.Component {
           />
         </div>
         <div style={{paddingLeft: '30px'}}>
-          {this.answers}
+          {this.renderAnswers()}
         </div>
       </div>
     );

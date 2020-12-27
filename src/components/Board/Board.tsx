@@ -1,12 +1,12 @@
 import React from 'react';
 
 import Line from '../Line/Line';
-import {Point, Bar, Solution} from "../App/App";
+import {Point, Selection, Solution} from "../App/App";
 
 import './Board.scss';
 
 type Answer = {
-  bar: Bar;
+  selection: Selection;
   isCorrect: boolean;
 }
 
@@ -20,8 +20,8 @@ interface IBoardState {
   score: number;
   wasValidAnswer: boolean;
   wasSelecting: boolean;
-  selections: Array<Answer>;
-  bar: Bar;
+  answers: Array<Answer>;
+  selection: Selection;
 }
 
 export default class Board extends React.Component<IBoardProps, IBoardState> {
@@ -29,18 +29,18 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   constructor(props: IBoardProps) {
     super(props);
 
-    const selections = [...new Array(props.solutions.length)].map(() =>
+    const answers = [...new Array(props.solutions.length)].map(() =>
       Object.assign({}, {
-        bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
+        selection: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
         isCorrect: false,
       }));
 
     this.state = {
+      answers,
       score: 0,
-      selections,
       wasValidAnswer: false,
       wasSelecting: false,
-      bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
+      selection: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
     }
   }
 
@@ -52,34 +52,35 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     const [parse, str] = [JSON.parse, JSON.stringify];
 
     let score = this.state.score;
-    const selections: Array<Answer> = parse(str(this.state.selections));
-    const s = selections.find(v => !v.isCorrect);
+    const answers: Array<Answer> = parse(str(this.state.answers));
+    const currAnswer: Answer | undefined = answers.find(v => !v.isCorrect);
 
     // skip if there are no lines left or the mouse is moving but not selecting
-    if (!s || (isMoving && !this.state.wasSelecting))
+    if (!currAnswer || (isMoving && !this.state.wasSelecting))
       return;
 
-    const x = Math.abs(pos.x - this.state.bar.start.x);
-    const y = Math.abs(pos.y - this.state.bar.start.y);
+    const x = Math.abs(pos.x - this.state.selection.start.x);
+    const y = Math.abs(pos.y - this.state.selection.start.y);
     const isValidMove = x === 0 || y === 0 || x === y;
     const isMouseDown = isSelecting && !this.state.wasSelecting;
     const isMouseUp = !isSelecting && this.state.wasSelecting && isValidMove;
-    const start: Point = isMouseDown ? pos : this.state.bar.start;
-    const bar: Bar = {start, end: pos};
+    const start: Point = isMouseDown ? pos : this.state.selection.start;
+    const selection: Selection = {start, end: pos};
 
     if (isValidMove)
-      s.bar = bar;
+      currAnswer.selection = selection;
 
     if (isMouseUp && this.state.wasValidAnswer)
-      [s.isCorrect, score] = [true, score + 1];
+      [currAnswer.isCorrect, score] = [true, score + 1];
 
-    const isValidSolution = this.props.solutions.some(v => str(v.bar) === str(s.bar));
-    const wasAlreadySelected = this.state.selections.some(v => str(v.bar) === str(s.bar));
+    const strBar: string = str(currAnswer.selection);
+    const isValidSolution = this.props.solutions.some(v => str(v.selection) === strBar);
+    const wasAlreadySelected = this.state.answers.some(v => str(v.selection) === strBar);
     const isValidAnswer = isValidSolution && !wasAlreadySelected;
 
     this.setState({
       ...this.state,
-      score, bar, selections,
+      score, selection, answers,
       wasValidAnswer: isValidAnswer,
       wasSelecting: isSelecting,
     });
@@ -110,7 +111,7 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     return (
       <Line
         key={`Line${n}`}
-        bar={s.bar}
+        selection={s.selection}
         isCorrect={s.isCorrect}
         cellSize={this.props.cellSize}
       />
@@ -118,12 +119,11 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   }
 
   render(): JSX.Element {
-    let cells =
-      this.props.cells.map((oy, y) =>
-        oy.map((s, x) =>
-          this.renderCell(s, {x, y})));
+    let cells = this.props.cells.map((oy, y) =>
+      oy.map((s, x) =>
+        this.renderCell(s, {x, y})));
 
-    let lines = this.state.selections.map((s, n) =>
+    let lines = this.state.answers.map((s, n) =>
       this.renderLine(s, n));
 
     const gridTemplateColumns = `repeat(${this.props.cells.length}, ${this.props.cellSize}px)`;
