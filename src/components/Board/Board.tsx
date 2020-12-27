@@ -1,66 +1,44 @@
 import React from 'react';
 
 import Line from '../Line/Line';
+import {Point, Bar, Solution} from "../App/App";
 
 import './Board.scss';
 
-type Point = {
-  x: number;
-  y: number;
-}
-
-export type Bar = {
-  start: Point,
-  end: Point,
-}
-
-type Solution = {
+type Answer = {
   bar: Bar;
-  key: string;
-}
-
-type Selection = {
-  bar: Bar,
-  isVisible: boolean;
   isCorrect: boolean;
 }
 
 interface IBoardProps {
-  numBoard: number;
+  cells: Array<Array<string>>;
+  solutions: Array<Solution>;
+  cellSize: number;
 }
 
 interface IBoardState {
   score: number;
-  wasValid: boolean;
+  wasValidAnswer: boolean;
   wasSelecting: boolean;
-  selections: Array<Selection>;
+  selections: Array<Answer>;
   bar: Bar;
 }
 
 export default class Board extends React.Component<IBoardProps, IBoardState> {
-  private readonly cells: Array<Array<string>>;
-  private readonly solutions: Array<Solution>;
-  private readonly cellSize: number;
 
   constructor(props: IBoardProps) {
     super(props);
 
-    const crosski: any = require(`../../constants/${props.numBoard}.json`)
-    this.cells = crosski.cells;
-    this.solutions = crosski.solutions;
-    this.cellSize = 60;
-
-    const selections = [...new Array(this.solutions.length)].map(() =>
+    const selections = [...new Array(props.solutions.length)].map(() =>
       Object.assign({}, {
         bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
         isCorrect: false,
-        isVisible: true,
       }));
 
     this.state = {
       score: 0,
       selections,
-      wasValid: false,
+      wasValidAnswer: false,
       wasSelecting: false,
       bar: {start: {x: 0, y: 0}, end: {x: 0, y: 0}},
     }
@@ -74,7 +52,7 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     const [parse, str] = [JSON.parse, JSON.stringify];
 
     let score = this.state.score;
-    const selections: Array<Selection> = parse(str(this.state.selections));
+    const selections: Array<Answer> = parse(str(this.state.selections));
     const s = selections.find(v => !v.isCorrect);
 
     // skip if there are no lines left or the mouse is moving but not selecting
@@ -86,32 +64,33 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     const isValidMove = x === 0 || y === 0 || x === y;
     const isMouseDown = isSelecting && !this.state.wasSelecting;
     const isMouseUp = !isSelecting && this.state.wasSelecting && isValidMove;
-    const isValidSolution = this.solutions.some(v => str(v.bar) === str(s.bar));
-    const wasAlreadySelected = this.state.selections.some(v => str(v.bar) === str(s.bar));
-    const isValid = isValidSolution && !wasAlreadySelected;
     const start: Point = isMouseDown ? pos : this.state.bar.start;
     const bar: Bar = {start, end: pos};
 
     if (isValidMove)
       s.bar = bar;
 
-    if (isMouseUp && this.state.wasValid)
+    if (isMouseUp && this.state.wasValidAnswer)
       [s.isCorrect, score] = [true, score + 1];
+
+    const isValidSolution = this.props.solutions.some(v => str(v.bar) === str(s.bar));
+    const wasAlreadySelected = this.state.selections.some(v => str(v.bar) === str(s.bar));
+    const isValidAnswer = isValidSolution && !wasAlreadySelected;
 
     this.setState({
       ...this.state,
       score, bar, selections,
-      wasValid: isValid,
-      wasSelecting: isSelecting
+      wasValidAnswer: isValidAnswer,
+      wasSelecting: isSelecting,
     });
 
-    if (score === this.solutions.length)
+    if (score === this.props.solutions.length)
       this.gameOver();
   }
 
   renderCell(s: string, pos: Point): JSX.Element {
-    const size = `${this.cellSize}px`;
-    const padding = `${this.cellSize / 4}px`;
+    const size = `${this.props.cellSize}px`;
+    const padding = `${this.props.cellSize / 4}px`;
 
     return (
       <button
@@ -127,28 +106,27 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     );
   }
 
-  renderLine(s: Selection, n: number): JSX.Element {
+  renderLine(s: Answer, n: number): JSX.Element {
     return (
       <Line
         key={`Line${n}`}
         bar={s.bar}
-        isVisible={s.isVisible}
         isCorrect={s.isCorrect}
-        cellSize={this.cellSize}
+        cellSize={this.props.cellSize}
       />
     );
   }
 
   render(): JSX.Element {
     let cells =
-      this.cells.map((oy, y) =>
+      this.props.cells.map((oy, y) =>
         oy.map((s, x) =>
           this.renderCell(s, {x, y})));
 
     let lines = this.state.selections.map((s, n) =>
       this.renderLine(s, n));
 
-    const gridTemplateColumns = `repeat(${this.cells.length}, ${this.cellSize}px)`;
+    const gridTemplateColumns = `repeat(${this.props.cells.length}, ${this.props.cellSize}px)`;
 
     return (
       <div className="Container">

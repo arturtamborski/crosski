@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Bar} from '../Board/Board'
+import {Bar} from '../App/App'
 
 import './Line.scss';
 
@@ -19,7 +19,6 @@ enum Dir {
 interface ILineProps {
   bar: Bar;
   cellSize: number;
-  isVisible: boolean;
   isCorrect: boolean;
 }
 
@@ -51,7 +50,6 @@ export default function Line(props: ILineProps): JSX.Element {
   return (
     <rect
       className={props.isCorrect ? 'CorrectLine' : 'Line'}
-      visibility={props.isVisible ? 'visible' : 'hidden'}
       transform={`rotate(${r}, ${x}, ${y})`}
       {...{x, y, width: w, height: h, rx: m4, ry: m4}}
     />
