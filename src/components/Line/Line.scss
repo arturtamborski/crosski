@@ -1,10 +1,9 @@
 .Line {
-  stroke: #8b8be5;
-  stroke-width: 5px;
-  fill: none;
+  fill: #8b8be5;
+  fill-opacity: 0.4;
 }
 
 .CorrectLine {
-  @extend .Line;
-  stroke: #60bf4f;
+  fill: #60bf4f;
+  fill-opacity: 0.4;
 }

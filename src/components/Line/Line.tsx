@@ -4,13 +4,13 @@ import {Bar} from '../Board/Board'
 
 import './Line.scss';
 
-enum Direction {
+enum Dir {
   None = 0,
   Up = 1,
-  Down = 2,
   Left = 10,
   LeftUp = 11,
   LeftDown = 12,
+  Down = 2,
   Right = 20,
   RightUp = 21,
   RightDown = 22,
@@ -24,65 +24,36 @@ interface ILineProps {
 }
 
 export default function Line(props: ILineProps): JSX.Element {
-  const offset = 2.5;
-  const margin = props.cellSize / 2;
-  const padding = margin - offset * 2;
+  const [m1, sqrt2] = [props.cellSize, Math.sqrt(2)];
+  const [m2, m4, m8] = [m1 / 2, m1 / 4, m1 / 8];
+  const [startX, endX] = [m1 * props.bar.start.x, m1 * props.bar.end.x];
+  const [startY, endY] = [m1 * props.bar.start.y, m1 * props.bar.end.y];
 
-  /* pls ignore */
   const dir = (v: number) => v < 0 ? 2 : v > 0 ? 1 : 0;
-  const mid = (v: number) => v * props.cellSize + props.cellSize / 2;
-  const pad1 = (v: number) => mid(v) - margin + offset;
-  const pad2 = (v: number) => mid(v + 1) - margin - offset * 2;
-  const pad3 = (v: number) => mid(v) + padding + v * padding;
-  const pad4 = (v: number) => mid(v - 1) + margin;
+  const d = Number(`${dir(startX-endX)}${dir(startY-endY)}`) as Dir;
 
-  const [startX, startY] = [props.bar.start.x, props.bar.start.y];
-  const [endX, endY] = [props.bar.end.x, props.bar.end.y];
-  const [ox, oy] = [dir(startX - endX), dir(startY - endY)];
-  const d = Number(`${ox}${oy}`) as Direction;
+  const flip = [Dir.Left, Dir.Up, Dir.LeftUp, Dir.LeftDown].includes(d);
+  let [x, w] = [flip ? endX : startX, Math.abs(startX - endX)];
+  let [y, h] = [flip ? endY : startY, Math.abs(startY - endY)];
+  let r;
 
-  const maxY = Math.max(startY, endY);
-  const [minX, minY] = [Math.min(startX, endX), Math.min(startY, endY)];
-  const [absX, absY] = [Math.abs(startX - endX), Math.abs(startY - endY)];
-  const [signX, signY] = [Math.sign(startX - endX), Math.sign(startY - endY)];
+  let i = d === Dir.None ? 0 : 1;
+  if ([Dir.LeftUp, Dir.RightDown].includes(d)) i = 2;
+  if ([Dir.LeftDown, Dir.RightUp].includes(d)) i = 3;
 
-  /* uhh, edge cases for two directions, idk how to fix it */
-  const x = d === Direction.LeftDown ? pad4(minX) : pad1(minX);
-  const y = d === Direction.LeftDown || d === Direction.RightUp
-    ? pad1(maxY) : pad1(minY);
-
-  /* pad3 is used only for diagonals */
-  let width = d % 10 ? pad3(absX) : pad2(absX);
-  let height = pad2(absY * (1 - Math.abs(signX * signY)));
-
-  /* hide when not moving */
-  if (d === Direction.None)
-    [width, height] = [0, 0];
-
-  const r = 45 * signX * signY;
-  const rx = (x - offset) * Math.abs(signX);
-  const ry = (y + offset) * Math.abs(signY);
-
-  let [tx, ty] = [0, 0, 0, 0];
-
-  /* ugly translation fixes but they work i guess */
-  if (d === Direction.LeftUp || d === Direction.RightDown)
-    [tx, ty] = [26, -14];
-
-  if (d === Direction.LeftDown)
-    [tx, ty] = [-6, 29];
-
-  if (d === Direction.RightUp)
-    [tx, ty] = [-9, 28];
+  [x, y, w, h, r] = [
+    [     0,           0,      0,              0,    0],
+    [m4 + x,      m4 + y, m2 + w,         m2 + h,    0],
+    [m8 + x,      m2 + y,     m2, m2 + h * sqrt2,  -45],
+    [m2 + x, m1 - m8 + y,     m2, m2 + h * sqrt2, -135],
+  ][i];
 
   return (
     <rect
       className={props.isCorrect ? 'CorrectLine' : 'Line'}
-      rx={margin - offset}
-      ry={margin - offset}
-      {...{x, y, width, height}}
-      transform={`translate(${tx}, ${ty}), rotate(${r}, ${rx}, ${ry})`}
       visibility={props.isVisible ? 'visible' : 'hidden'}
+      transform={`rotate(${r}, ${x}, ${y})`}
+      {...{x, y, width: w, height: h, rx: m4, ry: m4}}
     />
   );
 }
