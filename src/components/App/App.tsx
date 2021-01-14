@@ -34,7 +34,8 @@ export default class App extends React.Component {
   constructor(props: object) {
     super(props);
 
-    this.game = require(`../../constants/1.json`)
+    const gameId = (Math.trunc(Math.random() * 100) % 2) + 1;
+    this.game = require(`../../constants/${gameId}.json`)
   }
 
   renderAnswers(): Array<JSX.Element> {

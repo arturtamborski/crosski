@@ -92,7 +92,7 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   renderCell(s: string, pos: Point): JSX.Element {
     const size = `${this.props.cellSize}px`;
     const padding = `${this.props.cellSize / 4}px`;
-    const visibility = s === " " ? "hidden" : "visible";
+    const visibility = s === ' ' ? 'hidden' : 'visible';
 
     return (
       <button
@@ -127,7 +127,7 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
     let lines = this.state.answers.map((s, n) =>
       this.renderLine(s, n));
 
-    const gridTemplateColumns = `repeat(${this.props.cells.length}, ${this.props.cellSize}px)`;
+    const gridTemplateColumns = `repeat(${this.props.cells[0].length}, ${this.props.cellSize}px)`;
 
     return (
       <div className="Container">
