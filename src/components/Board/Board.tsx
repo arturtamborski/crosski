@@ -92,11 +92,12 @@ export default class Board extends React.Component<IBoardProps, IBoardState> {
   renderCell(s: string, pos: Point): JSX.Element {
     const size = `${this.props.cellSize}px`;
     const padding = `${this.props.cellSize / 4}px`;
+    const visibility = s === " " ? "hidden" : "visible";
 
     return (
       <button
         className="Cell"
-        style={{width: size, height: size, padding}}
+        style={{width: size, height: size, padding, visibility}}
         key={`Cell${pos.x}${pos.y}`}
         onMouseUp={() => this.updateSelection(pos, false)}
         onMouseDown={() => this.updateSelection(pos, true)}

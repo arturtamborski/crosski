@@ -3,9 +3,9 @@
   "description": "To zadanie rózni się od zwykłej wykreślanki tylko tym, że wyrazy, które trzeba wykreślić z diagramu, należy odgadnąć na podstawie wskazówek.",
   "catchword": "BRYLANTOWAKOLIA",
   "cells": [
-    ["X", "R", "W", "P", "A", "R", "Y", "Ż", "R", "S", "S", "L", "I"],
-    ["A", "K", "S", "W", "D", "K", "K", "B", "A", "O", "T", "P", "W"],
-    ["H", "P", "Z", "R", "A", "I", "O", "B", "Y", "Y", "T", "A", "O"],
+    [" ", " ", " ", "P", "A", "R", "Y", "Ż", "R", "S", " ", " ", " "],
+    [" ", " ", "S", "W", "D", "K", "K", "B", "A", "O", "T", " ", " "],
+    [" ", "P", "Z", "R", "A", "I", "O", "B", "Y", "Y", "T", "A", " "],
     ["K", "L", "T", "K", "M", "R", "A", "R", "R", "L", "A", "K", "T"],
     ["L", "A", "O", "O", "S", "R", "S", "D", "D", "T", "K", "R", "A"],
     ["A", "S", "K", "W", "T", "Ń", "A", "Z", "E", "E", "R", "E", "L"],
@@ -13,9 +13,9 @@
     ["N", "Y", "O", "A", "R", "R", "Y", "M", "N", "W", "B", "N", "I"],
     ["P", "K", "L", "G", "D", "U", "B", "L", "I", "N", "A", "A", "N"],
     ["T", "R", "M", "O", "A", "Ł", "R", "E", "P", "W", "T", "T", "N"],
-    ["Y", "A", "A", "K", "M", "F", "O", "L", "L", "I", "A", "A", "M"],
-    ["I", "W", "A", "G", "A", "H", "N", "E", "P", "O", "K", "D", "N"],
-    ["K", "R", "Z", "T", "A", "L", "E", "R", "Z", "E", "W", "O", "B"]
+    [" ", "A", "A", "K", "M", "F", "O", "L", "L", "I", "A", "A", " "],
+    [" ", " ", "A", "G", "A", "H", "N", "E", "P", "O", "K", " ", " "],
+    [" ", " ", " ", "T", "A", "L", "E", "R", "Z", "E", " ", " ", " "]
   ],
   "solutions": [
     {"selection": {"start": {"x":  3, "y":  0}, "end": {"x":  7, "y":  0}}, "key": "PARYŻ"},
