@@ -179,7 +179,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
 
   // hopefully we matched every letter in the grid
   if (gridWidth * gridHeight !== segments.length) {
-    console.warning("findTextRegions(): Dimensions are not equal to the number of matches");
+    console.warn("findTextRegions(): Dimensions are not equal to the number of matches");
   }
 
   // prepare grid for letters

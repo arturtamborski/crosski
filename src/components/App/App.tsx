@@ -43,23 +43,28 @@ export default class App extends React.Component {
 
   handleTakePhoto(pictures: any[], _: any[]): void {
     console.log("handleTakePhoto: loading image...")
-    const image = pictures[0];
+    const url = URL.createObjectURL(pictures[0]);
+    const image = document.createElement('img');
+    image.src = url;
+    image.onload = () => {
+      console.log("handleTakePhoto: finding text regions...")
+      const {grid, gridWidth, gridHeight} = findTextRegions(image);
+      console.log(grid, gridWidth, gridHeight);
 
-    const {grid, gridWidth, gridHeight} = findTextRegions(image);
-    console.log(grid, gridWidth, gridHeight);
+      image.src = "";
+      URL.revokeObjectURL(url);
 
-    if (!grid) {
-      return;
+      if (!grid) {
+        return;
+      }
+
+      let g = grid[0][0];
+      let ot = document.createElement('canvas');
+      ot.width = g.w;
+      ot.height = g.h;
+      ot.getContext('2d')?.putImageData(g.data, 0, 0);
+      document.body.appendChild(ot);
     }
-
-    debugger;
-
-    let g = grid[0][0];
-    let ot = document.createElement('canvas');
-    ot.width = g.w;
-    ot.height = g.h;
-    ot.getContext('2d')?.putImageData(g.data, 0, 0);
-    document.body.appendChild(ot);
   }
 
   renderAnswers(): Array<JSX.Element> {
