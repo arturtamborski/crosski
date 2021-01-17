@@ -22,6 +22,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
   for (let y = 0; y < image.height; y++) {
     for (let x = 0; x < image.width; x++) {
       let offset = ((y * image.width) + x) * 4;
+      // noinspection PointlessArithmeticExpressionJS
       let r = data.data[offset + 0] * 0.30; // 30%
       let g = data.data[offset + 1] * 0.59; // 59%
       let b = data.data[offset + 2] * 0.11; // 11%
@@ -29,6 +30,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
 
       r = g = b = c < grayScaleThreshold ? 0 : 255;
 
+      // noinspection PointlessArithmeticExpressionJS
       data.data[offset + 0] = r;
       data.data[offset + 1] = g;
       data.data[offset + 2] = b;
@@ -50,6 +52,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
 
     for (let x = 0; x < image.width; x++) {
       let o = (y * image.width + x) * 4;
+      // noinspection PointlessArithmeticExpressionJS
       let r = data.data[o + 0] << 16;
       let g = data.data[o + 1] << 8;
       let b = data.data[o + 2] << 0;
@@ -134,8 +137,8 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
       const y2 = list[i][3];
 
       if (x1 !== -1 && y1 !== -1 && x2 !== -1 && y2 !== -1) {
-        let w = (x2 - x1) + 1;
-        let h = (y2 - y1) + 1;
+        const w = (x2 - x1) + 1;
+        const h = (y2 - y1) + 1;
 
         if (w >= minTextWidth && h >= minTextWidth) {
           foundSegments.push({
@@ -151,7 +154,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
 
   // hopefully we found at least something
   if (!foundSegments.length) {
-    console.assert("Error: findTextRegions() did not found anything");
+    console.error("findTextRegions(): Error: findTextRegions() did not found anything");
     return {};
   }
 
@@ -176,29 +179,28 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
 
   // hopefully we matched every letter in the grid
   if (gridWidth * gridHeight !== segments.length) {
-    console.assert("Dimentions are not equal to the number of matches");
+    console.warning("findTextRegions(): Dimensions are not equal to the number of matches");
   }
 
   // prepare grid for letters
   let grid = Array.from(Array(gridHeight), () => new Array(gridWidth));
 
-  // fill grid with imageData objects (captured cutouts)
+  // fill grid with imageData / captured cutouts
   for (let j = 0; j < gridHeight; j++) {
     const segmentOffset = j * gridWidth;
     const indexMap = foundSegments
-      .slice(segmentOffset, segmentOffset + gridWidth);
-    const reverseIndexMap = indexMap
+      .slice(segmentOffset, segmentOffset + gridWidth)
       .map(s => s.x)
       .sort((a, b) => a - b)
-      .reduce((o, x, i) => (o[x] = i, o), {});
+      .reduce((o, x, i) => {
+        o[x] = i;
+        return o
+      }, {});
 
     for (let i = 0; i < gridWidth; i++) {
       let s = foundSegments[segmentOffset + i];
       let croppedData = ctx.getImageData(s.x, s.y, s.w, s.h);
-      grid[j][reverseIndexMap[s.x]] = {
-        data: croppedData,
-        ...s,
-      }
+      grid[j][indexMap[s.x]] = {data: croppedData, ...s}
     }
   }
 

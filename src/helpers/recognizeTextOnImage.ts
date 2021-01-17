@@ -1,16 +1,23 @@
+import {createWorker, ImageLike, PSM} from 'tesseract.js';
 
-export function recognise(): string {
+export function recognizeTextOnImage(image: ImageLike, isColumn: boolean): string {
   let out;
 
   (async () => {
-    const {data: {text}} = await Tesseract.recognize(image, 'pol', {
-      workerPath: 'https://unpkg.com/tesseract.js@v2.0.0/dist/worker.min.js',
-      langPath: 'https://tessdata.projectnaptha.com/4.0.0',
-      corePath: 'https://unpkg.com/tesseract.js-core@v2.0.0/tesseract-core.wasm.js',
-      cacheMethod: 'none',
+    const worker = createWorker();
+    await worker.load();
+    await worker.loadLanguage('pol');
+    await worker.initialize('pol');
+    await worker.setParameters({
+      // @ts-ignore, i don't know why this PSM.... stuff is mad at me
+      tessedit_pageseg_mode: isColumn ? PSM.SINGLE_COLUMN : PSM.SINGLE_CHAR,
+      tessedit_char_whitelist: 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWXYZŹŻ',
+      tessjs_create_box: '1',
     });
+
+    const { data: { text } } = await worker.recognize(image);
     out = text;
-    console.log("recognised: ", text);
+    await worker.terminate();
   })();
 
   return out || "";

@@ -1,9 +1,12 @@
 import React from 'react';
 
+import ImageUploader from 'react-images-upload';
+
 import Logo from '../Logo/Logo';
 import Board from '../Board/Board';
 
 import './App.scss';
+import {findTextRegions} from "../../helpers/findTextRegions";
 
 export type Point = {
   x: number;
@@ -35,7 +38,28 @@ export default class App extends React.Component {
     super(props);
 
     const gameId = (Math.trunc(Math.random() * 100) % 2) + 1;
-    this.game = require(`../../constants/${gameId}.json`)
+    this.game = require(`../../constants/${gameId}.json`);
+  }
+
+  handleTakePhoto(pictures: any[], _: any[]): void {
+    console.log("handleTakePhoto: loading image...")
+    const image = pictures[0];
+
+    const {grid, gridWidth, gridHeight} = findTextRegions(image);
+    console.log(grid, gridWidth, gridHeight);
+
+    if (!grid) {
+      return;
+    }
+
+    debugger;
+
+    let g = grid[0][0];
+    let ot = document.createElement('canvas');
+    ot.width = g.w;
+    ot.height = g.h;
+    ot.getContext('2d')?.putImageData(g.data, 0, 0);
+    document.body.appendChild(ot);
   }
 
   renderAnswers(): Array<JSX.Element> {
@@ -55,7 +79,15 @@ export default class App extends React.Component {
           </div>
         </div>
         <div />
-        <div />
+        <div style={{paddingLeft: '300px'}}>
+          <ImageUploader
+            withIcon={false}
+            buttonText='Wrzuć zdjęcie!'
+            onChange={this.handleTakePhoto.bind(this)}
+            imgExtension={['.jpg', '.jpeg', '.png']}
+            maxFileSize={5242880 * 5}  // 5MB * 5
+          />
+        </div>
         <div>
           <Board
             cells={this.game.cells}
