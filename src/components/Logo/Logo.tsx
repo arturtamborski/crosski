@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Wide from './crosski_wide.svg'
 import './Logo.scss';
 

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Selection} from '../App/App'
 
 import './Line.scss';
