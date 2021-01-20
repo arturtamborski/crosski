@@ -7,6 +7,7 @@ import Board from '../Board/Board';
 
 import './App.scss';
 import {findTextRegions} from "../../helpers/findTextRegions";
+import {recognizeTextOnImageGrid} from "../../helpers/recognizeTextOnImage";
 
 export type Point = {
   x: number;
@@ -48,22 +49,13 @@ export default class App extends React.Component {
     image.src = url;
     image.onload = () => {
       console.log("handleTakePhoto: finding text regions...")
-      const {grid, gridWidth, gridHeight} = findTextRegions(image);
-      console.log(grid, gridWidth, gridHeight);
-
-      image.src = "";
+      const r = findTextRegions(image);
+      console.log(r);
       URL.revokeObjectURL(url);
 
-      if (!grid) {
-        return;
+      if (r !== null) {
+        recognizeTextOnImageGrid(r.grid).then(() => {});
       }
-
-      let g = grid[0][0];
-      let ot = document.createElement('canvas');
-      ot.width = g.w;
-      ot.height = g.h;
-      ot.getContext('2d')?.putImageData(g.data, 0, 0);
-      document.body.appendChild(ot);
     }
   }
 

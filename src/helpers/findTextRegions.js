@@ -7,7 +7,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
   heightTolerance = heightTolerance ?? 8;
 
   if (!image.width) {
-    return {};
+    return null;
   }
 
   let canvas = document.createElement('canvas');
@@ -131,20 +131,20 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
     let list = segments[y];
 
     for (let i in list) {
-      const x1 = list[i][0];
-      const y1 = list[i][1];
-      const x2 = list[i][2];
-      const y2 = list[i][3];
+      let x1 = list[i][0];
+      let y1 = list[i][1];
+      let x2 = list[i][2];
+      let y2 = list[i][3];
 
       if (x1 !== -1 && y1 !== -1 && x2 !== -1 && y2 !== -1) {
-        const w = (x2 - x1) + 1;
-        const h = (y2 - y1) + 1;
+        let w = (x2 - x1) + 1;
+        let h = (y2 - y1) + 1;
 
         if (w >= minTextWidth && h >= minTextWidth) {
           foundSegments.push({
-            x: x1 - widthTolerance * 2,
-            y: y1 - heightTolerance,
-            w: w + widthTolerance,
+            x: x1 - widthTolerance * 3,
+            y: y1 - heightTolerance * 1,
+            w: w + widthTolerance * 3,
             h: h + heightTolerance * 2,
           });
         }
@@ -155,7 +155,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
   // hopefully we found at least something
   if (!foundSegments.length) {
     console.error("findTextRegions(): Error: findTextRegions() did not found anything");
-    return {};
+    return null;
   }
 
   let gridWidth = 0;
@@ -200,7 +200,11 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
     for (let i = 0; i < gridWidth; i++) {
       let s = foundSegments[segmentOffset + i];
       let croppedData = ctx.getImageData(s.x, s.y, s.w, s.h);
-      grid[j][indexMap[s.x]] = {data: croppedData, ...s}
+      let croppedCanvas = document.createElement('canvas');
+      croppedCanvas.width = s.w;
+      croppedCanvas.height = s.h;
+      croppedCanvas.getContext('2d')?.putImageData(croppedData, 0, 0);
+      grid[j][indexMap[s.x]] = {data: croppedData, canvas: croppedCanvas, ...s}
     }
   }
 
