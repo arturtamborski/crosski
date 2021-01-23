@@ -1,13 +1,14 @@
 import React from 'react';
 
 import ImageUploader from 'react-images-upload';
+import MultiCrops from 'react-multi-crops'
 
 import Logo from '../Logo/Logo';
 import Board from '../Board/Board';
 
 import './App.scss';
-import {findTextRegions} from "../../helpers/findTextRegions";
-import {recognizeTextOnImageGrid} from "../../helpers/recognizeTextOnImage";
+//import {findTextRegions} from "../../helpers/findTextRegions";
+//import {recognizeTextOnImageGrid} from "../../helpers/recognizeTextOnImage";
 
 export type Point = {
   x: number;
@@ -32,36 +33,51 @@ type Game = {
   solutions: Array<Solution>;
 }
 
-export default class App extends React.Component {
+interface IAppProps {
+}
+
+interface IAppState {
+  image: HTMLImageElement | null,
+  selections: Array<any>;
+}
+
+export default class App extends React.Component<IAppProps, IAppState> {
   private game: Game;
 
-  constructor(props: object) {
+  constructor(props: IAppProps) {
     super(props);
 
     const gameId = (Math.trunc(Math.random() * 100) % 2) + 1;
     this.game = require(`../../constants/${gameId}.json`);
+
+    this.state = {
+      image: null,
+      selections: [],
+    }
   }
 
   handleTakePhoto(pictures: any[], _: any[]): void {
-    console.log("handleTakePhoto: loading image...")
-    const url = URL.createObjectURL(pictures[0]);
     const image = document.createElement('img');
-    image.src = url;
-    image.onload = () => {
-      console.log("handleTakePhoto: finding text regions...")
-      const r = findTextRegions(image);
-      console.log(r);
-      URL.revokeObjectURL(url);
+    image.src = URL.createObjectURL(pictures[0]);
+    image.onload = () => this.setState({...this.state, image});
+      //this.leftMenu.current;
+      //const r = findTextRegions(image);
+      //console.log(r);
+      //URL.revokeObjectURL(url);
+      //if (r !== null) {
+      //  recognizeTextOnImageGrid(r.grid).then(grid => {
 
-      if (r !== null) {
-        recognizeTextOnImageGrid(r.grid).then(() => {});
-      }
-    }
+      //  });
+      //}
+  }
+
+  handleChangeCoordinate(_: any, __: any, selections: any) {
+    this.setState({selections});
   }
 
   renderAnswers(): Array<JSX.Element> {
     return this.game.solutions.map(s => s.key).map(k =>
-      <p className="Answer">{k}</p>);
+      <p key={k} className="Answer">{k}</p>);
   }
 
   render() {
@@ -77,12 +93,24 @@ export default class App extends React.Component {
         </div>
         <div />
         <div style={{paddingLeft: '300px'}}>
-          <ImageUploader
-            withIcon={false}
-            buttonText='Wrzuć zdjęcie!'
-            onChange={this.handleTakePhoto.bind(this)}
-            imgExtension={['.jpg', '.jpeg', '.png']}
-            maxFileSize={5242880 * 5}  // 5MB * 5
+          <div className="UploadSection">
+            <ImageUploader
+              withIcon={false}
+              buttonText='Wrzuć zdjęcie!'
+              onChange={this.handleTakePhoto.bind(this)}
+              imgExtension={['.jpg', '.jpeg', '.png']}
+              maxFileSize={5242880 * 5}  // 5MB * 5
+            />
+            <button
+              className="ConfirmButton"
+              style={{visibility: this.state.image ? 'visible' : 'hidden'}}
+            >Potwierdź</button>
+          </div>
+          <MultiCrops
+            src={this.state.image?.src || ''}
+            width={this.state.image?.width}
+            coordinates={this.state.selections}
+            onChange={this.handleChangeCoordinate.bind(this)}
           />
         </div>
         <div>

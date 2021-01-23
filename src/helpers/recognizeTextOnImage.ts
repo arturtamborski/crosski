@@ -11,7 +11,7 @@ async function prepareWorker(isColumn: boolean = true): Promise<Worker> {
     await worker.setParameters({
       // @ts-ignore, i don't know why this PSM.... stuff is mad at me
       tessedit_pageseg_mode: isColumn ? PSM.SINGLE_COLUMN : PSM.SINGLE_CHAR,
-      tessedit_char_whitelist: 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWXYZŹŻ',
+      tessedit_char_whitelist: 'ABCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWXYZŹŻ', // no 'Ą'!
       tessjs_create_box: '1',
     });
 
@@ -19,7 +19,8 @@ async function prepareWorker(isColumn: boolean = true): Promise<Worker> {
 }
 
 async function recognize(worker: Worker, image: ImageLike) {
-  return (await worker.recognize(image)).data.text.trim() || "";
+  // bug fix - letter 'I' (capital i) is often not recognised
+  return (await worker.recognize(image)).data.text.trim() || "I";
 }
 
 export async function recognizeTextOnImage(image: ImageLike): Promise<string> {
@@ -27,44 +28,16 @@ export async function recognizeTextOnImage(image: ImageLike): Promise<string> {
     return await recognize(TEXT_WORKER, image);
 }
 
-export async function recognizeTextOnImageGrid(grid: any[][]): Promise<void> {
+export async function recognizeTextOnImageGrid(grid: any[][]): Promise<any[][]> {
   CHAR_WORKER = CHAR_WORKER ?? await prepareWorker(false);
 
   // no parallelization for now, we can always Promise it all() later
   for (let line of grid) {
     for (let g of line) {
       g.text = await recognize(CHAR_WORKER, g.canvas);
-      //g.data = g.canvas = null;
+      g.data = g.canvas = null;  // free mem
     }
   }
 
-  const polishLetters = ['Ą', 'Ć', 'Ę', 'V', 'Ł', 'Ń', 'Ó', 'Ś', 'Ź', 'Ż'];
-
-  for (let line of grid) {
-    let div = document.createElement('div');
-
-    for (let g of line) {
-      let p = document.createElement('p');
-      p.style.paddingRight = '5px';
-      p.style.paddingBottom = '5px';
-      p.style.marginTop = '-5px';
-      p.style.textAlign = 'right';
-      // bug fix, this letter is rarely recognized
-      p.innerText = g.text || "V";
-
-      let innerDiv = document.createElement('div');
-      innerDiv.style.display = 'inline-block';
-      let color = polishLetters.includes(p.innerText) ? 'red' : 'blue';
-      innerDiv.style.border = `3px solid ${color}`;
-      innerDiv.style.marginLeft = '3px';
-      innerDiv.style.marginBottom = '3px';
-      innerDiv.style.width = '70px';
-      innerDiv.style.height = '70px';
-      innerDiv.appendChild(g.canvas);
-      innerDiv.appendChild(p);
-
-      div.appendChild(innerDiv);
-    }
-    document.body.appendChild(div);
-  }
+  return grid;
 }
