@@ -21,6 +21,7 @@ interface ILineProps {
 }
 
 export default function Line(props: ILineProps): JSX.Element {
+
   const [m1, sqrt2] = [props.cellSize, Math.sqrt(2)];
   const [m2, m4, m8] = [m1 / 2, m1 / 4, m1 / 8];
   const [startX, endX] = [m1 * props.selection.start.x, m1 * props.selection.end.x];
