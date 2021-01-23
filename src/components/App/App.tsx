@@ -1,22 +1,14 @@
 import React from 'react';
 
-import ImageUploader from 'react-images-upload';
-import MultiCrops from 'react-multi-crops'
-
-// @ts-ignore
-import Logo from '../Logo/Logo';
-// @ts-ignore
+import AnswerList from "../AnswerList/AnswerList";
 import Board from '../Board/Board';
+import Logo from "../Logo/Logo";
+import Menu from '../Menu/Menu';
+import Randomizer from "../Randomizer/Randomizer";
+import Recognizer from "../Recognizer/Recognizer";
+import Title from "../Title/Title";
 
 import './App.scss';
-// @ts-ignore
-import {findTextRegions} from "../../helpers/findTextRegions";
-// @ts-ignore
-import {
-  recognizeTextOnImage,
-// @ts-ignore
-  recognizeTextOnImageGrid
-} from "../../helpers/recognizeTextOnImage";
 
 export type Point = {
   x: number;
@@ -33,194 +25,127 @@ export type Solution = {
   key: string;
 }
 
-type Game = {
+export type Game = {
+  cells: Array<Array<string>>;
+  solutions: Array<Solution>;
   title: string;
   description: string;
   catchword: string;
-  cells: Array<Array<string>>;
-  solutions: Array<Solution>;
 }
 
 interface IAppProps {
 }
 
-interface IAppState {
-  image: HTMLImageElement | null,
-  selections: Array<any>;
-  cells: Array<Array<string>>;
-  solutions: Array<Solution>;
+export interface IAppState {
+  game: Game;
+  mode: string;
+  ready: boolean;
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
-  private game: Game;
 
   constructor(props: IAppProps) {
     super(props);
 
-    const gameId = (Math.trunc(Math.random() * 100) % 2) + 1;
-    this.game = require(`../../constants/${gameId}.json`);
-
     this.state = {
-      image: null,
-      selections: [],
-      cells: [],
-      solutions: [],
+      game: {
+        cells: [],
+        solutions: [],
+        title: "",
+        description: "",
+        catchword: "",
+      },
+      mode: "",
+      ready: false,
     }
   }
 
-  handleTakePhoto(pictures: any[], _: any[]): void {
-    const image = document.createElement('img');
-    image.src = URL.createObjectURL(pictures[0]);
-    image.onload = () => this.setState({...this.state, image});
+  handleGameModeSelected(mode: string) {
+    const ready = mode === "reset" ? false : this.state.ready;
+    this.setState({...this.state, mode, ready});
   }
 
-  handleChangeCoordinate(_: any, __: any, selections: any) {
-    this.setState({...this.state, selections});
+  handleRecognitionFinished(game: Game) {
+    this.setState({...this.state, game, ready: true});
   }
 
-  handleConfirmClick() {
-    if (!this.state.image || !this.state.selections.length)
-      return;
+  renderTitle(): JSX.Element {
+    if (!this.state.ready) return <div />;
 
-    const mainCanvas = document.createElement('canvas');
-    const mainContext = mainCanvas.getContext('2d');
-    mainCanvas.width = this.state.image.width;
-    mainCanvas.height = this.state.image.height;
-    mainContext?.drawImage(this.state.image, 0, 0);
-
-    const areas = this.state.selections.map(s => s.width * s.height);
-    const gridIndex = areas.indexOf(Math.max(...areas));
-    const gridSelection = this.state.selections.splice(gridIndex, 1)[0];
-    const gridImage = mainContext?.getImageData(
-      gridSelection.x,
-      gridSelection.y,
-      gridSelection.width,
-      gridSelection.height
+    return (
+      <Title
+        title={this.state.game.title}
+        description={this.state.game.description}
+      />
     );
-
-    if (!gridImage) {
-      console.log("gridImage is empty");
-      return;
-    }
-
-    const gridTextRegions = findTextRegions(gridImage);
-    if (!gridTextRegions || !gridTextRegions.grid) {
-      console.log("gridRegions is empty");
-      return;
-    }
-
-    let reads = [];
-    reads.push(this.handleGridTextRegionsReadyToRead(gridTextRegions.grid));
-
-    for (let s of this.state.selections) {
-      const tempData = mainContext?.getImageData(s.x, s.y, s.width, s.height);
-      if (!tempData) {
-        console.log("tempData is empty");
-        continue;
-      }
-
-      reads.push(this.handleStateSelectionsReadyToRead(tempData, s))
-    }
-
-    Promise.all(reads).then(() => {
-      // free resources
-      if (this.state.image) {
-        URL.revokeObjectURL(this.state.image.src);
-        mainCanvas.width = 0;
-        mainCanvas.height = 0;
-      }
-
-      this.setState({
-        ...this.state,
-        image: null,
-        selections: [],
-      });
-    });
   }
 
-  async handleGridTextRegionsReadyToRead(grid: any) {
-    const textGrid = await recognizeTextOnImageGrid(grid);
-    let cells = [];
-
-    for (let row of textGrid) {
-      let line = [];
-
-      for (let letter of row) {
-        line.push(letter.text);
-      }
-
-      cells.push(line);
-    }
-
-    this.setState({...this.state, cells});
+  renderLogo(): JSX.Element {
+    return <Logo />;
   }
 
-  async handleStateSelectionsReadyToRead(data: ImageData, s: any) {
-    const tempCanvas = document.createElement('canvas');
-    const tempContext = tempCanvas.getContext('2d');
-    tempCanvas.width = s.width;
-    tempCanvas.height = s.height;
-    tempContext?.putImageData(data, 0, 0);
-
-    const text = await recognizeTextOnImage(tempCanvas);
-    let solutions = this.state.solutions.slice();
-
-    for (let key of text.split("\n")) {
-      solutions.push({key, selection: {start: {x: 0, y: 0}, end: {x: 0, y: 0}}});
-    }
-
-    this.setState({...this.state, solutions});
+  renderMenu(): JSX.Element {
+    return (
+      <Menu
+        onGameModeSelected={this.handleGameModeSelected.bind(this)}
+      />
+    );
   }
 
-  renderAnswers(): Array<JSX.Element> {
-    return this.game.solutions.map(s => s.key).map(k =>
-      <p key={k} className="Answer">{k}</p>);
+  renderBoard(): JSX.Element {
+    if (!this.state.ready) return <div />;
+
+    return (
+      <Board
+        cells={this.state.game.cells}
+        solutions={this.state.game.solutions}
+        cellSize={60}
+      />
+    );
+  }
+
+  renderRandomizer(): JSX.Element {
+    if (!(!this.state.ready && this.state.mode === "randomize")) return <div />;
+
+    return (
+      <Randomizer
+        onRecognitionFinished={this.handleRecognitionFinished.bind(this)}
+      />
+    );
+  }
+
+  renderRecognizer(): JSX.Element {
+    if (!(!this.state.ready && this.state.mode === "recognize")) return <div />;
+
+    return (
+      <Recognizer
+        onRecognitionFinished={this.handleRecognitionFinished.bind(this)}
+      />
+    );
+  }
+
+  renderAnswerList(): JSX.Element {
+    if (!this.state.ready) return <></>;
+
+    const answers = this.state.game.solutions.map(s => s.key);
+
+    return (
+      <AnswerList
+        answers={answers}
+      />
+    );
   }
 
   render() {
     return (
       <div className="App">
-        <div />
-        <div>
-          <Logo />
-          <div>
-            <p>{this.game.title}</p>
-            <p>{this.game.description}</p>
-          </div>
-        </div>
-        <div />
-        <div style={{paddingLeft: '300px'}}>
-          <div className="UploadSection">
-            <ImageUploader
-              withIcon={false}
-              buttonText='Wrzuć zdjęcie!'
-              onChange={this.handleTakePhoto.bind(this)}
-              imgExtension={['.jpg', '.jpeg', '.png']}
-              maxFileSize={5242880 * 5}  // 5MB * 5
-            />
-            <button
-              className="ConfirmButton"
-              onClick={this.handleConfirmClick.bind(this)}
-              style={{visibility: this.state.image ? 'visible' : 'hidden'}}
-            >Potwierdź</button>
-          </div>
-          <MultiCrops
-            src={this.state.image?.src || ''}
-            width={this.state.image?.width}
-            coordinates={this.state.selections}
-            onChange={this.handleChangeCoordinate.bind(this)}
-          />
-        </div>
-        <div>
-          <Board
-            cells={this.game.cells}
-            solutions={this.game.solutions}
-            cellSize={60}
-          />
-        </div>
-        <div style={{paddingLeft: '30px'}}>
-          {this.renderAnswers()}
-        </div>
+        <div />  {this.renderLogo()}        <div />
+        <div />  {this.renderMenu()}        <div />
+        <div />  {this.renderTitle()}       <div />
+        <div />  {this.renderBoard()}       <div />
+        <div />  {this.renderRecognizer()}  <div />
+        <div />  {this.renderRandomizer()}  <div />
+        <div />  {this.renderAnswerList()}  <div />
       </div>
     );
   }
