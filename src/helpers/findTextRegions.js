@@ -15,7 +15,7 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
   canvas.height = image.height;
 
   let ctx = canvas.getContext('2d');
-  ctx.drawImage(image, 0, 0);
+  ctx.putImageData(image, 0, 0);
   let data = ctx.getImageData(0, 0, image.width, image.height);
 
   // convert to black & white picture
