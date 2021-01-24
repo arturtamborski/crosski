@@ -157,8 +157,8 @@ export default class Recognizer extends React.Component<IRecognizerProps, IRecog
         coordinates: [],
       });
 
-      console.debug(this.state.cells);
-      console.debug(solutions);
+      console.log(this.state.cells);
+      console.log(solutions);
 
       this.props.onRecognitionFinished({
         ...this.state,

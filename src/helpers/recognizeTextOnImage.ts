@@ -38,7 +38,11 @@ export async function recognizeTextOnImageGrid(grid: any[][]): Promise<any[][]> 
   // no parallelization for now, we can always Promise it all() later
   for (let line of grid) {
     for (let g of line) {
-      g.text = await recognize(CHAR_WORKER, g.canvas);
+      if (g.canvas) {
+        g.text = await recognize(CHAR_WORKER, g.canvas);
+      } else {
+        g.text = '?';
+      }
     }
   }
 

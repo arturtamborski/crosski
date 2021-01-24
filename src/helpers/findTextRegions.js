@@ -201,10 +201,17 @@ export function findTextRegions(image, maxWhiteSpace, maxFontLineWidth, minTextW
       let s = foundSegments[segmentOffset + i];
       let croppedData = ctx.getImageData(s.x, s.y, s.w, s.h);
       let croppedCanvas = document.createElement('canvas');
+      let croppedContext = croppedCanvas.getContext('2d');
       croppedCanvas.width = s.w;
       croppedCanvas.height = s.h;
-      croppedCanvas.getContext('2d')?.putImageData(croppedData, 0, 0);
-      grid[j][indexMap[s.x]] = {data: croppedData, canvas: croppedCanvas, ...s}
+
+      if (!croppedContext) {
+        croppedData = croppedCanvas = null;
+      } else {
+        croppedContext.putImageData(croppedData, 0, 0);
+      }
+
+      grid[j][indexMap[s.x]] = {data: croppedData, canvas: croppedCanvas, ...s};
     }
   }
 
