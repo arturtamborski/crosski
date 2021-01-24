@@ -35,6 +35,47 @@ export default class Recognizer extends React.Component<IRecognizerProps, IRecog
     }
   }
 
+  findSolution(key: string, col: number, row: number): Solution | undefined {
+    const g = this.state.cells;
+
+    if (g[row][col] !== key[0])
+      return;
+
+    let gridW = g[0].length;
+    let gridH = g.length;
+    let x = [-1, -1, -1,  0, 0,  1, 1, 1];
+    let y = [-1,  0,  1, -1, 1, -1, 0, 1];
+
+    for (let dir = 0; dir < 8; dir++) {
+      let rd = row + x[dir];
+      let cd = col + y[dir];
+      let k;
+
+      for (k = 1; k < key.length; k++) {
+        if (rd >= gridW || rd < 0 ||
+          cd >= gridH || cd < 0 ||
+          g[rd][cd] !== key[k])
+          break;
+
+        rd += x[dir];
+        cd += y[dir];
+      }
+
+      if (k === key.length) {
+        cd += Math.sign(col - cd);
+        rd += Math.sign(row - rd);
+
+        return {
+          key,
+          selection: {
+            start: {x: col, y: row},
+            end: {x: cd, y: rd},
+          }
+        }
+      }
+    }
+  }
+
   handleTakePhoto(files: any[], _: any[]): void {
     const image = document.createElement('img');
     image.src = URL.createObjectURL(files[0]);
@@ -97,16 +138,29 @@ export default class Recognizer extends React.Component<IRecognizerProps, IRecog
         mainCanvas.height = 0;
       }
 
+      let solutions = [];
+      for (let y = 0; y < this.state.cells.length; y++) {
+        for (let x = 0; x < this.state.cells[y].length; x++) {
+          for (let s of this.state.solutions) {
+            let answer = this.findSolution(s.key, x, y);
+            if (answer) {
+              solutions.push(answer);
+            }
+          }
+        }
+      }
+
       this.setState({
         ...this.state,
         image: null,
+        solutions,
         coordinates: [],
       });
 
       this.props.onRecognitionFinished({
         ...this.state,
-        title: "Loaded game",
-        description: "Good luck!",
+        title: "Wczytano grę",
+        description: "Powodzenia!",
         catchword: "",
       });
     });

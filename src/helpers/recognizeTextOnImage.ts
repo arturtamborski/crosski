@@ -24,7 +24,7 @@ async function recognize(worker: Worker, image: ImageLike) {
   document.image = image;
   // @ts-ignore
   document.recognize = worker.recognize;
-  return (await worker.recognize(image)).data.text.trim() || "I";
+  return (await worker.recognize(image)).data.text.trim().toUpperCase() || "I";
 }
 
 export async function recognizeTextOnImage(image: ImageLike): Promise<string> {
