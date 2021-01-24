@@ -139,9 +139,9 @@ export default class Recognizer extends React.Component<IRecognizerProps, IRecog
       }
 
       let solutions = [];
-      for (let y = 0; y < this.state.cells.length; y++) {
-        for (let x = 0; x < this.state.cells[y].length; x++) {
-          for (let s of this.state.solutions) {
+      for (let s of this.state.solutions) {
+        for (let y = 0; y < this.state.cells.length; y++) {
+          for (let x = 0; x < this.state.cells[y].length; x++) {
             let answer = this.findSolution(s.key, x, y);
             if (answer) {
               solutions.push(answer);
@@ -156,6 +156,9 @@ export default class Recognizer extends React.Component<IRecognizerProps, IRecog
         solutions,
         coordinates: [],
       });
+
+      console.debug(this.state.cells);
+      console.debug(solutions);
 
       this.props.onRecognitionFinished({
         ...this.state,
@@ -192,8 +195,8 @@ export default class Recognizer extends React.Component<IRecognizerProps, IRecog
 
     const text = await recognizeTextOnImage(tempCanvas);
     let solutions = this.state.solutions.slice();
-
-    for (let key of text.split("\n")) {
+    const keys = text.split('\n').flatMap(t => t.split(' '));
+    for (let key of keys) {
       solutions.push({key, selection: {start: {x: 0, y: 0}, end: {x: 0, y: 0}}});
     }
 
